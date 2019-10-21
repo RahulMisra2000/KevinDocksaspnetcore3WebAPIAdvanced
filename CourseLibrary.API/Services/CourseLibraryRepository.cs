@@ -128,6 +128,9 @@ namespace CourseLibrary.API.Services
             return _context.Authors.ToList<Author>();
         }
 
+
+
+ /* *** RETURNS a PAGEDLIST<> *************************************************************************** */
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
             if (authorsResourceParameters == null)
@@ -135,37 +138,41 @@ namespace CourseLibrary.API.Services
                 throw new ArgumentNullException(nameof(authorsResourceParameters));
             }
             
+            /* *** so that we can do Deferred Execution ****                            */
             var collection = _context.Authors as IQueryable<Author>;
 
-            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
+            /* filter */
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))     /* Terminology : FILTER:  where clause with ==   */
             {
                 var mainCategory = authorsResourceParameters.MainCategory.Trim();
                 collection = collection.Where(a => a.MainCategory == mainCategory);
             }
 
-            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
+            /* search */
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))      /* Terminology :SEARCH:  where clause with contains   */
             {
-
                 var searchQuery = authorsResourceParameters.SearchQuery.Trim();
                 collection = collection.Where(a => a.MainCategory.Contains(searchQuery)
                     || a.FirstName.Contains(searchQuery)
                     || a.LastName.Contains(searchQuery));
             }
 
+            /* sorting */
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
             {
                 // get property mapping dictionary
-                var authorPropertyMappingDictionary = 
-                    _propertyMappingService.GetPropertyMapping<Models.AuthorDto, Author>();
+                var authorPropertyMappingDictionary =  _propertyMappingService.GetPropertyMapping<Models.AuthorDto, Author>();
 
-                collection = collection.ApplySort(authorsResourceParameters.OrderBy,
-                    authorPropertyMappingDictionary);
+                collection = collection.ApplySort(authorsResourceParameters.OrderBy, authorPropertyMappingDictionary);
             }
 
-            return PagedList<Author>.Create(collection,
-                authorsResourceParameters.PageNumber,
-                authorsResourceParameters.PageSize); 
+            /* returning PagedList<> which contains not only the results of query but also pagination information for the caller's use */
+            return PagedList<Author>.Create(collection, authorsResourceParameters.PageNumber, authorsResourceParameters.PageSize); 
         }
+/* *** RETURNS a PAGEDLIST<> *************************************************************************** */
+
+
+
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
         {
