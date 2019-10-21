@@ -18,60 +18,51 @@ namespace CourseLibrary.API.Controllers
     [Route("api/authors")]
     public class AuthorsController : ControllerBase
     {
-        private readonly ICourseLibraryRepository _courseLibraryRepository;
-        private readonly IMapper _mapper;
-        private readonly IPropertyMappingService _propertyMappingService;
-        private readonly IPropertyCheckerService _propertyCheckerService;
+        private readonly ICourseLibraryRepository   _courseLibraryRepository;
+        private readonly IMapper                    _mapper;
+        private readonly IPropertyMappingService    _propertyMappingService;
+        private readonly IPropertyCheckerService    _propertyCheckerService;
 
         public AuthorsController(ICourseLibraryRepository courseLibraryRepository,
             IMapper mapper, IPropertyMappingService propertyMappingService,
             IPropertyCheckerService propertyCheckerService)
         {
-            _courseLibraryRepository = courseLibraryRepository ??
-                throw new ArgumentNullException(nameof(courseLibraryRepository));
-            _mapper = mapper ??
-                throw new ArgumentNullException(nameof(mapper));
-            _propertyMappingService = propertyMappingService ??
-              throw new ArgumentNullException(nameof(propertyMappingService));
-            _propertyCheckerService = propertyCheckerService ??
-              throw new ArgumentNullException(nameof(propertyCheckerService));
+            _courseLibraryRepository= courseLibraryRepository   ?? throw new ArgumentNullException(nameof(courseLibraryRepository));
+            _mapper                 = mapper                    ?? throw new ArgumentNullException(nameof(mapper));
+            _propertyMappingService = propertyMappingService    ?? throw new ArgumentNullException(nameof(propertyMappingService));
+            _propertyCheckerService = propertyCheckerService    ?? throw new ArgumentNullException(nameof(propertyCheckerService));
         }
 
         [HttpGet(Name = "GetAuthors")]
         [HttpHead]
-        public IActionResult GetAuthors(
-            [FromQuery] AuthorsResourceParameters authorsResourceParameters)
+        public IActionResult GetAuthors([FromQuery] AuthorsResourceParameters authorsResourceParameters)
         {            
-            if (!_propertyMappingService.ValidMappingExistsFor<AuthorDto, Entities.Author>
-                (authorsResourceParameters.OrderBy))
+            if (!_propertyMappingService.ValidMappingExistsFor<AuthorDto, Entities.Author>(authorsResourceParameters.OrderBy))
             {
                 return BadRequest();
             }
 
-            if (!_propertyCheckerService.TypeHasProperties<AuthorDto>
-              (authorsResourceParameters.Fields))
+            if (!_propertyCheckerService.TypeHasProperties<AuthorDto>(authorsResourceParameters.Fields))
             {
                 return BadRequest();
             }
-
-            var authorsFromRepo = _courseLibraryRepository.GetAuthors(authorsResourceParameters);
-                    
+          
+            var authorsPagedList = _courseLibraryRepository.GetAuthors(authorsResourceParameters);
+            /* *** authorsPagedList contains the result of the query and a lot of paging metadata */
+            
             var paginationMetadata = new
             {
-                totalCount = authorsFromRepo.TotalCount,
-                pageSize = authorsFromRepo.PageSize,
-                currentPage = authorsFromRepo.CurrentPage,
-                totalPages = authorsFromRepo.TotalPages 
+                totalCount = authorsPagedList.TotalCount,
+                pageSize = authorsPagedList.PageSize,
+                currentPage = authorsPagedList.CurrentPage,
+                totalPages = authorsPagedList.TotalPages 
             };
 
-            Response.Headers.Add("X-Pagination",
-                JsonSerializer.Serialize(paginationMetadata));
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
 
-            var links = CreateLinksForAuthors(authorsResourceParameters,
-                authorsFromRepo.HasNext,
-                authorsFromRepo.HasPrevious);
+            var links = CreateLinksForAuthors(authorsResourceParameters, authorsPagedList.HasNext, authorsPagedList.HasPrevious);
 
-            var shapedAuthors = _mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo)
+            var shapedAuthors = _mapper.Map<IEnumerable<AuthorDto>>(authorsPagedList)
                                .ShapeData(authorsResourceParameters.Fields);
 
             var shapedAuthorsWithLinks = shapedAuthors.Select(author =>
@@ -90,6 +81,13 @@ namespace CourseLibrary.API.Controllers
 
             return Ok(linkedCollectionResource);             
         }
+        
+        
+        
+        
+        
+        
+        
         [Produces("application/json", 
             "application/vnd.marvin.hateoas+json",
             "application/vnd.marvin.author.full+json", 
