@@ -14,17 +14,19 @@ namespace CourseLibrary.API.ActionConstraints
         private readonly MediaTypeCollection _mediaTypes = new MediaTypeCollection();
         private readonly string _requestHeaderToMatch;
 
-        public RequestHeaderMatchesMediaTypeAttribute(string requestHeaderToMatch,
-            string mediaType, params string[] otherMediaTypes)
+        /* 
+        This is how eg the Action is decorated inside the controller
+          [RequestHeaderMatchesMediaType("Content-Type", "application/json","application/vnd.marvin.authorforcreation+json")]
+          
+          the constructor receives the parameters from the decoration (above)
+        */
+        public RequestHeaderMatchesMediaTypeAttribute(string requestHeaderToMatch, string mediaType, params string[] otherMediaTypes)
         {
-            _requestHeaderToMatch = requestHeaderToMatch
-               ?? throw new ArgumentNullException(nameof(requestHeaderToMatch));
+            _requestHeaderToMatch = requestHeaderToMatch  ?? throw new ArgumentNullException(nameof(requestHeaderToMatch));
 
-            // check if the inputted media types are valid media types
-            // and add them to the _mediaTypes collection                     
+            // check if the inputted media types are valid media types and add them to the _mediaTypes collection                     
 
-            if (MediaTypeHeaderValue.TryParse(mediaType,
-                out MediaTypeHeaderValue parsedMediaType))
+            if (MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
             {
                 _mediaTypes.Add(parsedMediaType);
             }
@@ -35,8 +37,7 @@ namespace CourseLibrary.API.ActionConstraints
 
             foreach (var otherMediaType in otherMediaTypes)
             {
-                if (MediaTypeHeaderValue.TryParse(otherMediaType,
-                   out MediaTypeHeaderValue parsedOtherMediaType))
+                if (MediaTypeHeaderValue.TryParse(otherMediaType, out MediaTypeHeaderValue parsedOtherMediaType))
                 {
                     _mediaTypes.Add(parsedOtherMediaType);
                 }
