@@ -87,16 +87,14 @@ namespace CourseLibrary.API.Controllers
         
         
         
-        
-        [Produces("application/json", 
-            "application/vnd.marvin.hateoas+json",
-            "application/vnd.marvin.author.full+json", 
-            "application/vnd.marvin.author.full.hateoas+json",
-            "application/vnd.marvin.author.friendly+json", 
+        /* ***  Either we specify Produces attribute here OR we configure the Output formatter to recognize these custom
+                media types in startup.cs
+        */
+        [Produces("application/json", "application/vnd.marvin.hateoas+json", "application/vnd.marvin.author.full+json", 
+            "application/vnd.marvin.author.full.hateoas+json", "application/vnd.marvin.author.friendly+json", 
             "application/vnd.marvin.author.friendly.hateoas+json")]
         [HttpGet("{authorId}", Name ="GetAuthor")]
-        public IActionResult GetAuthor(Guid authorId, string fields,
-              [FromHeader(Name = "Accept")] string mediaType)
+        public IActionResult GetAuthor(Guid authorId, string fields, [FromHeader(Name = "Accept")] string mediaType)
         {
             if (!MediaTypeHeaderValue.TryParse(mediaType,
                 out MediaTypeHeaderValue parsedMediaType))
@@ -158,12 +156,13 @@ namespace CourseLibrary.API.Controllers
             return Ok(friendlyResourceToReturn);
         }
 
+
+        /* ***  Either we specify Consumes attribute here OR we configure the Input formatter to recognize these custom
+                media types in startup.cs
+        */
         [HttpPost(Name = "CreateAuthor")]
-        [RequestHeaderMatchesMediaType("Content-Type",
-            "application/json",
-            "application/vnd.marvin.authorforcreation+json")]
-        [Consumes("application/json",
-            "application/vnd.marvin.authorforcreation+json")]
+        [RequestHeaderMatchesMediaType("Content-Type", "application/json","application/vnd.marvin.authorforcreation+json")]
+        [Consumes("application/json", "application/vnd.marvin.authorforcreation+json")]
         public ActionResult<AuthorDto> CreateAuthor(AuthorForCreationDto author)
         {
             var authorEntity = _mapper.Map<Entities.Author>(author);
@@ -183,9 +182,12 @@ namespace CourseLibrary.API.Controllers
                 linkedResourceToReturn);
         }
 
+        
+        /* ***  Either we specify Consumes attribute here OR we configure the Input formatter to recognize these custom
+                media types in startup.cs
+        */
         [HttpPost(Name = "CreateAuthorWithDateOfDeath")]
-        [RequestHeaderMatchesMediaType("Content-Type",
-            "application/vnd.marvin.authorforcreationwithdateofdeath+json")]
+        [RequestHeaderMatchesMediaType("Content-Type", "application/vnd.marvin.authorforcreationwithdateofdeath+json")]
         [Consumes("application/vnd.marvin.authorforcreationwithdateofdeath+json")]
         public IActionResult CreateAuthorWithDateOfDeath(AuthorForCreationWithDateOfDeathDto author)
         {
