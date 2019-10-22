@@ -76,10 +76,12 @@ namespace CourseLibrary.API
                 };
             });
 
-			services.Configure<MvcOptions>(config =>
+	  services.Configure<MvcOptions>(config =>
             {
-                var newtonsoftJsonOutputFormatter = config.OutputFormatters
-                      .OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
+		/* ******************** we want the json output formatter to honor the 
+					custom media type application/vnd.marvin.hateoas+json
+		*/
+                var newtonsoftJsonOutputFormatter = config.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
 
                 if (newtonsoftJsonOutputFormatter != null)
                 {
