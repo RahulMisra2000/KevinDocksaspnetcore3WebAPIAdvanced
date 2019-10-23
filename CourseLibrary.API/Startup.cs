@@ -141,6 +141,8 @@ namespace CourseLibrary.API
 
             app.UseEndpoints(endpoints =>
             {
+		/* ***	This is an asp.net web api and so we are using attribute routing. 
+			If this were an asp.net mvc controller with views application then routing table would be specified here */
                 endpoints.MapControllers();
             });
         }
