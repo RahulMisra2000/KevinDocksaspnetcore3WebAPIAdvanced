@@ -28,18 +28,23 @@ namespace CourseLibrary.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+	    /* *** This is Kevin Docks' middleware that supports creation of ALL cache related headers in the http response
+	    	   , stuff that Microsof't [ResponseCache] attribute does NOT support like eTag for example	
+	    */
             services.AddHttpCacheHeaders((expirationModelOptions) =>
-            {
-                expirationModelOptions.MaxAge = 60;
-                expirationModelOptions.CacheLocation = Marvin.Cache.Headers.CacheLocation.Private;
-            },
-            (validationModelOptions) =>
-            {
-                validationModelOptions.MustRevalidate = true;
-            });
+		    {
+			expirationModelOptions.MaxAge = 60;
+			expirationModelOptions.CacheLocation = Marvin.Cache.Headers.CacheLocation.Private;
+		    },
+		    (validationModelOptions) =>
+		    {
+			validationModelOptions.MustRevalidate = true;
+		    });
 
+	    /* This is Microsoft's middleware for Caching */
             services.AddResponseCaching();
 
+		
             services.AddControllers(setupAction =>
             {
                 setupAction.ReturnHttpNotAcceptable = true;
