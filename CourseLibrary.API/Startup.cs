@@ -44,7 +44,10 @@ namespace CourseLibrary.API
 	    /* This is Microsoft's middleware for Caching */
             services.AddResponseCaching();
 
-		
+	
+	    /* *** FYI : if this was a regular web application with views then we would have instead done 
+	    		 services.AddControllersWithViews() ....
+	    */	 
             services.AddControllers(setupAction =>
             {
                 setupAction.ReturnHttpNotAcceptable = true;
@@ -139,6 +142,10 @@ namespace CourseLibrary.API
 
             app.UseAuthorization();
 
+		
+	    /* *** FYI : if this was a regular web application with views then we would have instead done 
+	    		 endpoints.MapControllerRoute(specified the routes here) ....
+	    */	 
             app.UseEndpoints(endpoints =>
             {
 		/* ***	This is an asp.net web api and so we are using attribute routing. 
