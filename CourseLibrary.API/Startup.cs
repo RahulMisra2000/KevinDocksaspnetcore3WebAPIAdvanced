@@ -64,9 +64,10 @@ namespace CourseLibrary.API
              .AddXmlDataContractSerializerFormatters()
             .ConfigureApiBehaviorOptions(setupAction =>
             {
-		/* *** 	If we don't do this then, the system will send 500 Internal Server Error whenever model validation will fail
-		       	in our API. That is the default behavior. And that is not correct.. model validation failure is a problem with the 
-			data sent in the http request and so we the api should be sending 422 and that is what the configuration
+		/* *** 	If we don't do this then, the system will send 400 Bad Request whenever model validation will fail
+		       	in our API. That is the default behavior. And although that is not correct.. model validation failure is a problem with the 
+			data sent in the http request and so we the api should be sending 422 
+			which means unprocessable entity ...it is more specific ... and that is what the configuration
 			below does 
 		*/
                 setupAction.InvalidModelStateResponseFactory = context =>
